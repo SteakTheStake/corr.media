@@ -1,0 +1,100 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Fireworks</title>
+  <style>
+            body {
+                background-color: black;
+            }
+        </style>
+</head>
+<body>
+<canvas id="canvas" width="800" height="600"></canvas>
+
+<script>
+            // set up canvas
+            let canvas = document.getElementById('canvas');
+            let ctx = canvas.getContext('2d');
+
+            // set up colors
+            let colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'];
+
+            // get random number
+            function random(min, max) {
+                let num = Math.floor(Math.random() * (max - min + 1)) + min;
+                return num;
+            }
+
+            // set up the firework
+            function Firework(startX, startY, targetX, targetY) {
+                this.x = startX;
+                this.y = startY;
+                this.startX = startX;
+                this.startY = startY;
+                this.targetX = targetX;
+                this.targetY = targetY;
+                this.hue = random(0, 360);
+                this.opacity = 1;
+                this.radius = 2;
+                this.fuseTimer = random(80, 50);
+                this.speed = 4;
+                this.brightness = random(50, 70);
+                this.targetRadius = 1;
+            }
+
+            // update the firework
+            Firework.prototype.update = function(index) {
+                this.fuseTimer--;
+
+                if (this.fuseTimer <= 0) {
+                    this.opacity -= 0.03;
+                    this.radius += 3;
+                }
+
+                if (this.opacity <= 0) {
+                    fireworks.splice(index, 1);
+                } else {
+                    // move the firework
+                    let vx = (this.targetX - this.x) * 0.05;
+                    let vy = (this.targetY - this.y) * 0.05;
+
+                    this.x += vx;
+                    this.y += vy;
+
+                    // draw the firework
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = 'hsl(' + this.hue + ', 100%, ' + this.brightness + '%)';
+                    ctx.fill();
+                }
+            }
+
+            // draw the fireworks
+            let fireworks = [];
+            function draw() {
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.globalCompositeOperation = 'lighter';
+
+                // loop through each firework
+                let i = fireworks.length;
+                while (i--) {
+                    fireworks[i].update(i);
+                }
+
+                // create new fireworks
+                if (random(1, 20) === 1) {
+                    fireworks.push(new Firework(canvas.width / 2, canvas.height, random(0, canvas.width), random(0, canvas.height / 2)));
+                }
+
+                requestAnimationFrame(draw);
+            }
+
+            // start animation
+            draw();
+
+        </script>
+</body>
+</html>
